@@ -2,509 +2,493 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZUX OFFICIAL - Global Chat & Call</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App - WA Style</title>
     <style>
-        :root {
-            --wa-bg: #0b141a;
-            --wa-header: #202c33;
-            --wa-bubble-in: #202c33;
-            --wa-bubble-out: #005c4b;
-            --text-main: #e9edef;
-            --text-muted: #8696a0;
-            --primary: #00a884;
-            --danger: #f15c6d;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        * { box-sizing: border-box; }
-        
-        html, body { 
-            margin: 0; padding: 0; width: 100%; height: 100dvh; 
-            overflow: hidden; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background: var(--wa-bg); color: var(--text-main); 
+        body {
+            background-color: #0b141a;
+            color: #e9edef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
-        /* Modal Login */
-        #login-screen { 
-            position: fixed; inset: 0; background: var(--wa-bg); 
-            display: flex; justify-content: center; align-items: center; 
-            z-index: 10000; padding: 20px; 
-        }
-        .login-box { 
-            background: var(--wa-header); padding: 30px 25px; 
-            border-radius: 12px; text-align: center; width: 100%; max-width: 350px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
-        }
-        .login-box input { 
-            width: 100%; padding: 14px; border-radius: 8px; border: 1px solid #333; 
-            outline: none; margin-bottom: 20px; font-size: 16px; 
-            background: #2a3942; color: white; text-align: center; 
-        }
-        .login-box button { 
-            width: 100%; padding: 14px; background: var(--primary); color: #111b21; 
-            border: none; border-radius: 8px; font-weight: bold; 
-            cursor: pointer; font-size: 16px; 
-        }
-
-        /* Layout Utama */
-        #app-screen { 
-            display: none; flex-direction: column; height: 100dvh; width: 100vw; position: relative; 
+        .chat-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            background: #111b21;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
         /* Header */
-        header { 
-            background: var(--wa-header); padding: 10px 15px; 
-            display: flex; align-items: center; justify-content: space-between; 
-            height: 60px; flex-shrink: 0; z-index: 10; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
+        .chat-header {
+            background-color: #202c33;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .hamburger { cursor: pointer; display: flex; flex-direction: column; gap: 4px; padding: 5px; }
-        .hamburger div { width: 22px; height: 2px; background: var(--text-main); border-radius: 2px;}
-        .title { font-weight: 600; font-size: 1.15rem; letter-spacing: 0.5px; }
-        
-        .header-icons { display: flex; gap: 15px; align-items: center; }
-        .icon-btn-head { background: none; border: none; fill: var(--text-main); cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; }
 
-        /* Area Chat */
-        #chat-container { 
-            flex: 1; padding: 15px; overflow-y: auto; 
-            display: flex; flex-direction: column; gap: 12px; 
-            background-image: radial-gradient(#202c33 1px, transparent 0); 
-            background-size: 16px 16px; 
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        
-        .message-wrapper { display: flex; flex-direction: column; max-width: 85%; position: relative; }
-        @media(min-width: 768px) { .message-wrapper { max-width: 60%; } }
-        .message-wrapper.me { align-self: flex-end; }
-        .message-wrapper.other { align-self: flex-start; }
-        
-        .sender-name { font-size: 0.75rem; color: #53bdeb; margin-bottom: 4px; margin-left: 4px; font-weight: 600; }
-        .message-wrapper.me .sender-name { display: none; }
 
-        .message { 
-            padding: 8px 12px; border-radius: 12px; position: relative; 
-            word-break: break-word; font-size: 0.95rem; line-height: 1.4; 
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #6b7c85;
         }
-        .message-wrapper.me .message { background: var(--wa-bubble-out); border-top-right-radius: 0; }
-        .message-wrapper.other .message { background: var(--wa-bubble-in); border-top-left-radius: 0; }
-        
-        .message img { max-width: 100%; border-radius: 8px; margin-top: 5px; display: block; }
-        .message audio { width: 100%; max-width: 250px; height: 40px; margin-top: 5px; outline: none; }
-        
-        .msg-footer { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 4px; }
-        .timestamp { font-size: 0.65rem; color: var(--text-muted); }
-        .btn-delete { background: none; border: none; fill: var(--text-muted); cursor: pointer; padding: 2px; display: flex; align-items: center; }
-        .btn-delete:hover { fill: var(--danger); }
-        .message-wrapper.other .btn-delete { display: none; } /* Hanya bisa hapus pesan sendiri */
 
-        /* Input Area */
-        .input-area { 
-            background: var(--wa-header); padding: 8px 10px; 
-            display: flex; align-items: center; gap: 8px; 
-            min-height: 60px; flex-shrink: 0; z-index: 10;
+        .header-actions button {
+            background: none;
+            border: none;
+            color: #aebac1;
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 15px;
         }
-        .icon-btn { background: none; border: none; fill: var(--text-muted); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
-        
-        .input-wrapper { flex: 1; background: #2a3942; border-radius: 24px; display: flex; align-items: center; padding: 0 15px; }
-        input[type="text"] { width: 100%; background: transparent; border: none; padding: 12px 0; color: var(--text-main); font-size: 1rem; outline: none; }
-        
-        #fileInput { display: none; }
 
-        /* Voice Recording UI (Overlay) */
-        #recording-ui {
-            display: none; flex: 1; align-items: center; justify-content: space-between;
-            background: #2a3942; border-radius: 24px; padding: 0 15px; height: 44px;
+        .header-actions button:hover {
+            color: #00a884;
         }
-        .rec-controls { display: flex; gap: 10px; align-items: center; }
-        .rec-btn { background: none; border: none; fill: var(--danger); cursor: pointer; padding: 5px; display: flex; align-items: center; }
-        .rec-btn.pause { fill: var(--text-main); }
-        canvas { width: 100px; height: 30px; }
-        #rec-timer { font-size: 0.9rem; font-variant-numeric: tabular-nums; color: var(--danger); }
 
-        /* Modals */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 20000; padding: 20px; }
-        .modal-box { background: var(--wa-header); border-radius: 12px; width: 100%; max-width: 350px; padding: 20px; display: flex; flex-direction: column; }
-        .user-list { overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; max-height: 60vh; }
-        .user-item { background: #2a3942; padding: 12px 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .user-item:hover { background: #32434d; }
+        /* Body Chat */
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-image: radial-gradient(#1f2c34 1px, transparent 0);
+            background-size: 15px 15px;
+        }
 
-        #video-screen { position: fixed; inset: 0; background: #000; z-index: 30000; display: none; flex-direction: column; }
-        .video-container { flex: 1; position: relative; width: 100%; height: 100%; }
-        #remoteVideo { width: 100%; height: 100%; object-fit: cover; }
-        #localVideo { width: 100px; height: 150px; object-fit: cover; position: absolute; top: 20px; right: 20px; border-radius: 10px; border: 2px solid white; background: #222; }
-        .video-controls { position: absolute; bottom: 30px; left: 0; right: 0; display: flex; justify-content: center; gap: 20px; }
-        .btn-call { width: 60px; height: 60px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; fill: white; }
-        .btn-accept { background: var(--primary); }
-        .btn-reject { background: var(--danger); }
+        .message {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            position: relative;
+            font-size: 14px;
+            line-height: 1.4;
+            cursor: pointer;
+        }
+
+        .message.received {
+            background-color: #202c33;
+            align-self: flex-start;
+        }
+
+        .message.sent {
+            background-color: #005c4b;
+            align-self: flex-end;
+        }
+
+        .quoted-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid #00a884;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #d1d7db;
+        }
+
+        .chat-img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .chat-img:hover {
+            opacity: 0.9;
+        }
+
+        /* Footer & Input */
+        .chat-footer {
+            background-color: #202c33;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .reply-preview {
+            background: #111b21;
+            border-left: 4px solid #00a884;
+            padding: 6px 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .reply-preview.hidden {
+            display: none;
+        }
+
+        .input-box {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-box input {
+            flex: 1;
+            background: #2a3942;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+        }
+
+        .input-box button {
+            background: #00a884;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Modal Perbesar Gambar */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .image-modal img {
+            max-width: 90%;
+            max-height: 80vh;
+            border-radius: 8px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        /* Modal Video Call (WA Style) */
+        .video-call-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #111b21;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            z-index: 2000;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            height: 80%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            overflow: hidden;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            color: #aebac1;
+            font-size: 18px;
+            display: none;
+        }
+
+        .call-controls {
+            display: flex;
+            gap: 15px;
+            background: #202c33;
+            padding: 12px 25px;
+            border-radius: 30px;
+        }
+
+        .btn-call {
+            background: #2a3942;
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .btn-call.active {
+            background: #f44336;
+        }
+
+        .btn-end {
+            background: #ea0038;
+        }
     </style>
-
-    <!-- Firebase Compat Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
 
-<!-- Layar Login -->
-<div id="login-screen">
-    <div class="login-box">
-        <h2 style="margin:0 0 10px 0; color: var(--primary);">ZUX OFFICIAL</h2>
-        <p style="margin:0 0 20px 0; font-size:0.85rem; color: var(--text-muted);">Masukkan username untuk masuk</p>
-        <input type="text" id="usernameInput" placeholder="Username Anda..." autocomplete="off">
-        <button onclick="masukApp()">MASUK CHAT</button>
-    </div>
-</div>
-
-<!-- Main App Screen -->
-<div id="app-screen">
-    <header>
-        <div class="header-left">
-            <div class="hamburger"><div></div><div></div><div></div></div>
-            <div class="title">ZUX OFFICIAL</div>
-        </div>
-        <div class="header-icons">
-            <button class="icon-btn-head" onclick="bukaDaftarUser()" title="Panggil Video">
-                <svg width="24" height="24" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
-            </button>
-        </div>
-    </header>
-
-    <div id="chat-container"></div>
-
-    <div class="input-area">
-        <button class="icon-btn" onclick="document.getElementById('fileInput').click()" title="Kirim Gambar">
-            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-        </button>
-        <input type="file" id="fileInput" accept="image/*" onchange="kirimGambar(event)">
-
-        <!-- Wrapper Input Teks Biasa -->
-        <div class="input-wrapper" id="text-ui">
-            <input type="text" id="msgInput" placeholder="Ketik pesan..." autocomplete="off">
-        </div>
-
-        <!-- Wrapper Voice Note (Sembunyi by default) -->
-        <div id="recording-ui">
-            <div class="rec-controls">
-                <button class="rec-btn" onclick="batalRekam()" title="Hapus"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>
-                <button class="rec-btn pause" id="pauseBtn" onclick="jedaRekam()" title="Jeda"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+<div class="chat-container">
+    <!-- Header Chat -->
+    <div class="chat-header">
+        <div class="user-info">
+            <div class="avatar"></div>
+            <div>
+                <strong>Kontak Official</strong><br>
+                <small style="color: #8696a0;">Online</small>
             </div>
-            <canvas id="visualizer"></canvas>
-            <span id="rec-timer">00:00</span>
         </div>
+        <div class="header-actions">
+            <!-- Tombol Video Call -->
+            <button onclick="startVideoCall()" title="Mulai Video Call">📹</button>
+        </div>
+    </div>
 
-        <!-- Tombol Mic (Klik untuk mulai) -->
-        <button class="icon-btn" id="voiceBtn" onclick="mulaiRekam()" title="Kirim Voice Note">
-            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg>
-        </button>
+    <!-- Area Pesan -->
+    <div class="chat-messages" id="chatMessages">
+        <div class="message received" onclick="replyMessage('Kontak Official', 'Halo, selamat datang!')">
+            Halo, selamat datang!
+        </div>
+        
+        <div class="message received" onclick="replyMessage('Kontak Official', '[Gambar]')">
+            Coba klik gambar di bawah untuk memperbesar:
+            <br>
+            <img src="https://picsum.photos/300/200" class="chat-img" onclick="openImageModal(this.src)" alt="Gambar Chat">
+        </div>
+    </div>
 
-        <!-- Tombol Kirim Teks / VN -->
-        <button class="icon-btn" id="sendBtn" onclick="prosesKirim()" style="display:none; fill: var(--primary);" title="Kirim">
-            <svg width="24" height="24" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-        </button>
+    <!-- Area Input & Reply Preview -->
+    <div class="chat-footer">
+        <div class="reply-preview hidden" id="replyPreview">
+            <div>
+                <small style="color: #00a884; font-weight: bold;" id="replySender"></small>
+                <div id="replyText" style="color: #8696a0;"></div>
+            </div>
+            <span style="cursor: pointer;" onclick="cancelReply()">✕</span>
+        </div>
+        <div class="input-box">
+            <input type="text" id="messageInput" placeholder="Ketik pesan...">
+            <button onclick="sendMessage()">Kirim</button>
+        </div>
     </div>
 </div>
 
-<!-- Modal Daftar User -->
-<div class="modal-overlay" id="userListModal">
-    <div class="modal-box">
-        <h3 style="margin:0 0 15px 0; color:var(--text-main);">Pilih User</h3>
-        <div class="user-list" id="userListContainer"></div>
-        <button onclick="document.getElementById('userListModal').style.display='none'" style="margin-top:15px; padding:12px; background:#333; color:white; border:none; border-radius:8px; cursor:pointer;">Tutup</button>
+<!-- Modal Zoom Gambar -->
+<div class="image-modal" id="imageModal">
+    <span class="close-btn" onclick="closeImageModal()">✕</span>
+    <img id="expandedImg" src="" alt="Perbesar Gambar">
+</div>
+
+<!-- Modal Video Call -->
+<div class="video-call-modal" id="videoCallModal">
+    <h3 style="color: white; margin-top: 10px;">Panggilan Video</h3>
+    
+    <div class="video-wrapper">
+        <video id="localVideo" autoplay playsinline muted></video>
+        <div class="video-placeholder" id="videoPlaceholder">Kamera Dinonaktifkan</div>
+    </div>
+
+    <!-- Control Video Call -->
+    <div class="call-controls">
+        <button class="btn-call" id="btnMuteAudio" onclick="toggleAudio()" title="Mute Suara">🎤</button>
+        <button class="btn-call" id="btnPauseVideo" onclick="toggleVideo()" title="Jeda Kamera">📷</button>
+        <button class="btn-call btn-end" onclick="endVideoCall()" title="Akhiri Panggilan">📞</button>
     </div>
 </div>
 
 <script>
-    // 1. Inisialisasi Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyD3usv5rw801fV1nrXIwyDQ6eYEzC7hDk0",
-        authDomain: "kodangz.firebaseapp.com",
-        databaseURL: "https://kodangz-default-rtdb.firebaseio.com",
-        projectId: "kodangz",
-        storageBucket: "kodangz.firebasestorage.app",
-        messagingSenderId: "306989473099",
-        appId: "1:306989473099:web:9049d3135ce13e08a8dcce"
-    };
+    /* ==========================================
+       1. FITUR REPLY PESAN
+    ========================================== */
+    let currentReply = null;
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    
-    // Auto Login dari LocalStorage
-    let myUsername = localStorage.getItem('zux_username');
+    function replyMessage(sender, text) {
+        currentReply = { sender, text };
+        document.getElementById('replySender').innerText = sender;
+        document.getElementById('replyText').innerText = text;
+        document.getElementById('replyPreview').classList.remove('hidden');
+    }
 
-    window.onload = () => { 
-        if (myUsername) {
-            document.getElementById('usernameInput').value = myUsername;
-            inisialisasi(); 
+    function cancelReply() {
+        currentReply = null;
+        document.getElementById('replyPreview').classList.add('hidden');
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('messageInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        const chatMessages = document.getElementById('chatMessages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'message sent';
+
+        // Jika pesan ini membalas pesan lain
+        if (currentReply) {
+            const quoteDiv = document.createElement('div');
+            quoteDiv.className = 'quoted-box';
+            quoteDiv.innerHTML = `<strong>${currentReply.sender}</strong><br>${currentReply.text}`;
+            msgDiv.appendChild(quoteDiv);
         }
-    };
 
-    function masukApp() {
-        const inputName = document.getElementById('usernameInput').value.trim();
-        if (!inputName) return alert("Username Wajib Diisi!");
+        const textNode = document.createTextNode(text);
+        msgDiv.appendChild(textNode);
         
-        localStorage.setItem('zux_username', inputName);
-        myUsername = inputName;
-        inisialisasi();
-    }
+        // Klik untuk reply pesan ini juga
+        msgDiv.onclick = () => replyMessage('Anda', text);
 
-    function inisialisasi() {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-screen').style.display = 'flex';
-        
-        db.ref('users/' + myUsername).set({ status: 'online', last_seen: Date.now() });
-        db.ref('users/' + myUsername).onDisconnect().remove();
-
-        muatChat();
-    }
-
-    // 2. Chat Logic & Delete
-    function formatWaktu(ts) {
-        const d = new Date(ts);
-        return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-    }
-
-    function hapusPesan(kunciPesan) {
-        if(confirm("Apakah kamu yakin ingin menghapus pesan ini?")) {
-            db.ref('zux_chat/' + kunciPesan).remove();
-        }
-    }
-
-    function muatChat() {
-        db.ref('zux_chat/').on('value', (snapshot) => {
-            const container = document.getElementById('chat-container');
-            container.innerHTML = '';
-            const data = snapshot.val();
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    const msg = data[key];
-                    const isMe = msg.pengirim === myUsername ? 'me' : 'other';
-                    let isiMsg = '';
-
-                    if (msg.tipe === 'teks') isiMsg = `<span>${msg.isi}</span>`;
-                    else if (msg.tipe === 'gambar') isiMsg = `<img src="${msg.isi}">`;
-                    else if (msg.tipe === 'suara') isiMsg = `<audio controls src="${msg.isi}"></audio>`;
-
-                    // Render Pesan + Tombol Hapus (SVG Trash)
-                    container.innerHTML += `
-                        <div class="message-wrapper ${isMe}" id="msg-${key}">
-                            <div class="sender-name">${msg.pengirim}</div>
-                            <div class="message">
-                                ${isiMsg}
-                                <div class="msg-footer">
-                                    <button class="btn-delete" onclick="hapusPesan('${key}')" title="Hapus Pesan">
-                                        <svg width="14" height="14" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                                    </button>
-                                    <span class="timestamp">${formatWaktu(msg.waktu)}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.scrollTop = container.scrollHeight;
-            }
-        });
-    }
-
-    function prosesKirim() {
-        if (isRecording || isPaused) {
-            berhentiDanKirimRekaman();
-        } else {
-            kirimTeks();
-        }
-    }
-
-    function kirimTeks() {
-        const input = document.getElementById('msgInput');
-        if (!input.value.trim()) return;
-        db.ref('zux_chat/').push({ pengirim: myUsername, tipe: 'teks', isi: input.value, waktu: Date.now() });
+        chatMessages.appendChild(msgDiv);
         input.value = '';
-        toggleSendBtn();
+        cancelReply();
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function kirimGambar(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const r = new FileReader();
-        r.onload = (ev) => {
-            db.ref('zux_chat/').push({ pengirim: myUsername, tipe: 'gambar', isi: ev.target.result, waktu: Date.now() });
-        };
-        r.readAsDataURL(file);
+
+    /* ==========================================
+       2. FITUR PERBESAR GAMBAR (ZOOM MODAL)
+    ========================================== */
+    function openImageModal(src) {
+        // Mencegah trigger event reply saat mengeklik gambar
+        event.stopPropagation();
+        document.getElementById('expandedImg').src = src;
+        document.getElementById('imageModal').style.display = 'flex';
     }
 
-    // 3. Voice Note Logic (Visualizer, Pause/Resume, Stop Fix)
-    let mediaRecorder, audioChunks = [];
-    let isRecording = false, isPaused = false;
-    let audioCtx, analyser, source, animationId;
-    let recTimerInterval, recSeconds = 0;
+    function closeImageModal() {
+        document.getElementById('imageModal').style.display = 'none';
+    }
 
-    const canvas = document.getElementById('visualizer');
-    const canvasCtx = canvas.getContext('2d');
-    const pauseBtnIcon = document.getElementById('pauseBtn');
 
-    async function mulaiRekam() {
+    /* ==========================================
+       3. FITUR VIDEO CALL (AUDIO, MUTE, JEDA KAMERA)
+    ========================================== */
+    let localStream = null;
+    let isAudioMuted = false;
+    let isVideoPaused = false;
+
+    async function startVideoCall() {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            // Meminta akses ke kamera dan mikrofon secara nyata
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             
-            // Setup Visualizer
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioCtx.createAnalyser();
-            source = audioCtx.createMediaStreamSource(stream);
-            source.connect(analyser);
-            analyser.fftSize = 256;
-            const bufferLength = analyser.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-
-            function drawVisualizer() {
-                animationId = requestAnimationFrame(drawVisualizer);
-                analyser.getByteFrequencyData(dataArray);
-                
-                canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
-                const barWidth = (canvas.width / bufferLength) * 2.5;
-                let x = 0;
-                
-                for(let i = 0; i < bufferLength; i++) {
-                    const barHeight = dataArray[i] / 2;
-                    canvasCtx.fillStyle = 'rgb(0, 168, 132)';
-                    canvasCtx.fillRect(x, canvas.height - barHeight/2, barWidth, barHeight/2);
-                    x += barWidth + 1;
-                }
-            }
-            drawVisualizer();
-
-            // Setup Recorder
-            mediaRecorder = new MediaRecorder(stream);
-            audioChunks = []; // Selalu kosongkan chunks saat mulai baru
-
-            mediaRecorder.ondataavailable = e => {
-                if(e.data.size > 0) audioChunks.push(e.data);
-            };
-
-            mediaRecorder.onstop = () => {
-                cancelAnimationFrame(animationId);
-                clearInterval(recTimerInterval);
-                stream.getTracks().forEach(track => track.stop());
-                if(audioCtx.state !== 'closed') audioCtx.close();
-                
-                resetUI();
-
-                // Cek apakah dikirim atau dibatalkan
-                if (audioChunks.length > 0 && isSending) {
-                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const r = new FileReader();
-                    r.onload = (ev) => {
-                        db.ref('zux_chat/').push({ pengirim: myUsername, tipe: 'suara', isi: ev.target.result, waktu: Date.now() });
-                    };
-                    r.readAsDataURL(blob);
-                }
-                audioChunks = []; // Bersihkan setelah selesai
-            };
-
-            mediaRecorder.start();
-            isRecording = true;
-            isPaused = false;
-            isSending = false;
+            const videoElem = document.getElementById('localVideo');
+            videoElem.srcObject = localStream;
             
-            // Timer UI
-            recSeconds = 0;
-            document.getElementById('rec-timer').innerText = "00:00";
-            recTimerInterval = setInterval(() => {
-                recSeconds++;
-                const m = String(Math.floor(recSeconds/60)).padStart(2, '0');
-                const s = String(recSeconds%60).padStart(2, '0');
-                document.getElementById('rec-timer').innerText = `${m}:${s}`;
-            }, 1000);
+            // Unmute elemen audio internal video jika dibutuhkan
+            videoElem.muted = false; 
 
-            // Ganti UI ke mode rekam
-            document.getElementById('text-ui').style.display = 'none';
-            document.getElementById('voiceBtn').style.display = 'none';
-            document.getElementById('recording-ui').style.display = 'flex';
-            document.getElementById('sendBtn').style.display = 'flex';
-            pauseBtnIcon.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`; // Icon Pause
-
-        } catch(e) { 
-            alert("Mikrofon Ditolak/Tidak Ada"); 
+            document.getElementById('videoCallModal').style.display = 'flex';
+            resetCallUI();
+        } catch (err) {
+            alert('Gagal mengakses kamera/mikrofon: ' + err.message);
         }
     }
 
-    function jedaRekam() {
-        if (!mediaRecorder) return;
+    function toggleAudio() {
+        if (!localStream) return;
+
+        const audioTrack = localStream.getAudioTracks()[0];
+        if (audioTrack) {
+            audioTrack.enabled = !audioTrack.enabled;
+            isAudioMuted = !audioTrack.enabled;
+
+            const btn = document.getElementById('btnMuteAudio');
+            if (isAudioMuted) {
+                btn.classList.add('active');
+                btn.innerText = '🔇';
+            } else {
+                btn.classList.remove('active');
+                btn.innerText = '🎤';
+            }
+        }
+    }
+
+    function toggleVideo() {
+        if (!localStream) return;
+
+        const videoTrack = localStream.getVideoTracks()[0];
+        const placeholder = document.getElementById('videoPlaceholder');
+
+        if (videoTrack) {
+            videoTrack.enabled = !videoTrack.enabled;
+            isVideoPaused = !videoTrack.enabled;
+
+            const btn = document.getElementById('btnPauseVideo');
+            if (isVideoPaused) {
+                btn.classList.add('active');
+                btn.innerText = '🚫';
+                placeholder.style.display = 'block';
+            } else {
+                btn.classList.remove('active');
+                btn.innerText = '📷';
+                placeholder.style.display = 'none';
+            }
+        }
+    }
+
+    function endVideoCall() {
+        if (localStream) {
+            // Matikan semua track kamera & audio
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
+        }
+        document.getElementById('videoCallModal').style.display = 'none';
+    }
+
+    function resetCallUI() {
+        isAudioMuted = false;
+        isVideoPaused = false;
         
-        if (isPaused) {
-            mediaRecorder.resume();
-            audioCtx.resume();
-            isPaused = false;
-            pauseBtnIcon.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`; // Icon Pause
-        } else {
-            mediaRecorder.pause();
-            audioCtx.suspend();
-            isPaused = true;
-            pauseBtnIcon.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`; // Icon Play (Resume)
-        }
-    }
-
-    let isSending = false;
-    function berhentiDanKirimRekaman() {
-        if (mediaRecorder && mediaRecorder.state !== "inactive") {
-            isSending = true; // Tandai bahwa user memencet kirim
-            mediaRecorder.stop();
-        }
-    }
-
-    function batalRekam() {
-        if (mediaRecorder && mediaRecorder.state !== "inactive") {
-            isSending = false; // Tandai batal (tidak di-push ke firebase)
-            audioChunks = [];
-            mediaRecorder.stop();
-        }
-    }
-
-    function resetUI() {
-        isRecording = false;
-        isPaused = false;
-        document.getElementById('recording-ui').style.display = 'none';
-        document.getElementById('text-ui').style.display = 'flex';
-        toggleSendBtn();
-    }
-
-    // Input Text Helpers
-    const msgInput = document.getElementById('msgInput');
-    function toggleSendBtn() {
-        if(isRecording || isPaused) return; // Jangan ubah jika sedang merekam
-        if (msgInput.value.trim().length > 0) {
-            document.getElementById('voiceBtn').style.display = 'none';
-            document.getElementById('sendBtn').style.display = 'flex';
-        } else {
-            document.getElementById('voiceBtn').style.display = 'flex';
-            document.getElementById('sendBtn').style.display = 'none';
-        }
-    }
-    msgInput.addEventListener('input', toggleSendBtn);
-    msgInput.addEventListener('keypress', e => { if(e.key === 'Enter') kirimTeks(); });
-
-    // 4. Fitur User List (Dibersihkan dari UI Panggilan yang rusak/tidak lengkap)
-    function bukaDaftarUser() {
-        document.getElementById('userListModal').style.display = 'flex';
-        const listContainer = document.getElementById('userListContainer');
-        listContainer.innerHTML = '<span style="color:var(--text-muted);">Memuat user...</span>';
-
-        db.ref('users/').once('value', (snap) => {
-            listContainer.innerHTML = '';
-            const users = snap.val();
-            if (users) {
-                Object.keys(users).forEach(u => {
-                    if (u !== myUsername) {
-                        listContainer.innerHTML += `
-                            <div class="user-item">
-                                <span style="font-weight:600;">${u}</span>
-                                <span style="font-size:0.8rem; color:var(--primary);">Online</span>
-                            </div>
-                        `;
-                    }
-                });
-            }
-            if (!listContainer.innerHTML) listContainer.innerHTML = '<div style="color:var(--text-muted); text-align:center;">Tidak ada user lain aktif</div>';
-        });
+        const btnMute = document.getElementById('btnMuteAudio');
+        const btnVideo = document.getElementById('btnPauseVideo');
+        
+        btnMute.classList.remove('active');
+        btnMute.innerText = '🎤';
+        
+        btnVideo.classList.remove('active');
+        btnVideo.innerText = '📷';
+        
+        document.getElementById('videoPlaceholder').style.display = 'none';
     }
 </script>
 </body>
